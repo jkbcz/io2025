@@ -1,0 +1,431 @@
+\documentclass[12pt,a4paper]{article}
+
+% --- Pakiety dla języka polskiego i czcionek ---
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[polish]{babel}
+\usepackage{geometry}
+\geometry{margin=2.5cm}
+\usepackage{graphicx} % KONIECZNE DO DIAGRAMÓW
+\usepackage{amsmath}  % DO STRZAŁEK I SYMBOLI
+\usepackage{float}    % POMAGA W USTAWIANIU DIAGRAMÓW [H]
+
+% --- Dane do strony tytułowej ---
+\title{
+    \vspace{3cm}
+    \textbf{\Huge Projekt Systemu Informatycznego} \\
+    \vspace{1cm}
+    \Large TransTime - System dynamicznej informacji pasażerskiej i analizy rozkładów jazdy w czasie rzeczywistym \\
+    \vspace{2cm}
+}
+
+\author{
+    \textbf{Autorzy:} \\
+    Adam Czakon \\
+    Jakub Czyż \\
+    Jakub Czajka
+}
+
+\date{\vfill \today}
+
+\begin{document}
+
+% --- STRONA TYTUŁOWA I SPISY ---
+\maketitle
+\thispagestyle{empty}
+\newpage
+
+\tableofcontents
+\listoffigures
+
+\newpage
+
+
+% --- PUNKT 2: KONCEPCJA SYSTEMU ---
+\section{Koncepcja systemu}
+
+Celem projektu jest stworzenie systemu informatycznego umożliwiającego publikację aktualnych rozkładów jazdy komunikacji miejskiej w Internecie. W odróżnieniu od tradycyjnych, statycznych tabel, system ten oferuje dynamiczne śledzenie czasu odjazdu na podstawie rzeczywistych danych.
+
+Główne założenia systemu to:
+\begin{itemize}
+    \item \textbf{Publikacja rozkładów:} Udostępnienie rozkładów jazdy dla konkretnych linii oraz poszczególnych przystanków.
+    \item \textbf{Analiza ruchu (Traffic):} Uwzględnienie aktualnego stanu przejezdności dróg w mieście.
+    \item \textbf{Estymacja czasu (ETA):} Obliczanie faktycznego czasu dojazdu pojazdu do przystanku z uwzględnieniem opóźnień i zdarzeń losowych.
+    \item \textbf{Informacja pasażerska:} Przekazanie użytkownikowi jasnej informacji, czy dany kurs nie wypadł z rozkładu i ile minut pozostało do jego przyjazdu.
+\end{itemize}
+
+System ma za zadanie zwiększyć komfort podróżnych poprzez dostarczenie wiarygodnych danych w czasie rzeczywistym, wzorując się na nowoczesnych systemach typu ITS (Intelligent Transportation Systems).
+
+
+
+% --- PUNKT 3: DIAGRAM PRZYPADKÓW UŻYCIA ---
+\newpage
+\section{Diagram przypadków użycia}
+
+Poniższy diagram identyfikuje głównych aktorów systemu oraz kluczowe funkcjonalności (przypadki użycia) niezbędne do realizacji celów biznesowych systemu TransTime.
+
+\begin{figure}[h]
+    \centering
+    % TODO: Tutaj wstawisz nazwę swojego pliku z diagramem, np. diagram_uc.png
+    % \includegraphics[width=0.9\textwidth]{diagram_uc.png}
+    \caption{Diagram przypadków użycia systemu informacji pasażerskiej.}
+    \label{fig:use_case}
+\end{figure}
+
+\subsection*{Opis aktorów i funkcjonalności:}
+\begin{itemize}
+    \item \textbf{Pasażer:} Użytkownik końcowy, który wyszukuje połączenia, przegląda rozkłady linii oraz sprawdza estymowany czas przyjazdu (ETA).
+    \item \textbf{Dyspozytor:} Pracownik MPK odpowiedzialny za wprowadzanie komunikatów o zdarzeniach losowych (np. awaria tramwaju, objazd).
+    \item \textbf{System GPS/Traffic:} Zewnętrzne źródło danych dostarczające w trybie ciągłym informacje o współrzędnych pojazdów i natężeniu ruchu.
+\end{itemize}
+
+
+
+% --- PUNKT 4: DZIEDZINOWY DIAGRAM KLAS ---
+\newpage
+\section{Dziedzinowy diagram klas}
+
+Dziedzinowy diagram klas przedstawia kluczowe pojęcia biznesowe występujące w systemie oraz relacje zachodzące między nimi. Koncentruje się on na strukturze informacji o rozkładach jazdy i danych napływających w czasie rzeczywistym.
+
+\begin{figure}[h]
+    \centering
+    % TODO: Wgraj plik o nazwie diagram4.png 
+    % \includegraphics[width=0.9\textwidth]{diagram4.png}
+    \caption{Dziedzinowy diagram klas systemu informacji pasażerskiej.}
+    \label{fig:domain_model}
+\end{figure}
+
+\subsection{Opis kluczowych klas dziedzinowych}
+\begin{itemize}
+    \item \textbf{Linia:} Reprezentuje konkretny numer linii (np. "Tramwaj 8"). Przechowuje informacje o trasie i typie pojazdu.
+    \item \textbf{Przystanek:} Punkt na mapie, do którego przypisane są odjazdy. Zawiera nazwę, lokalizację GPS oraz listę linii, które go obsługują.
+    \item \textbf{Kurs (Trip):} Konkretna realizacja przejazdu danej linii o określonej godzinie. To do kursu przypisane są dane o opóźnieniach.
+    \item \textbf{Pojazd:} Fizyczna jednostka (autobus/tramwaj) przypisana do kursu, przesyłająca swoje współrzędne geograficzne.
+    \item \textbf{Zdarzenie drogowe:} Informacja o utrudnieniach (korki, awarie), która wpływa na estymację czasu dojazdu.
+\end{itemize}
+
+\subsection{Relacje}
+Zastosowano następujące powiązania:
+\begin{itemize}
+    \item Jedna \textbf{Linia} posiada wiele \textbf{Kursów}.
+    \item Każdy \textbf{Kurs} obsługuje wiele \textbf{Przystanków} w określonej kolejności (harmonogram).
+    \item \textbf{Pojazd} jest przypisany do dokładnie jednego \textbf{Kursu} w danym momencie.
+    \item \textbf{Zdarzenie drogowe} może wpływać na wiele \textbf{Kursów} przechodzących przez dany obszar.
+\end{itemize}
+
+
+% --- PUNKT 5: SCENARIUSZE PRZYPADKÓW UŻYCIA ---
+\newpage
+\section{Scenariusze przypadków użycia}
+
+Poniższe tabele szczegółowo opisują przebieg interakcji użytkownika z systemem dla wybranych, kluczowych przypadków użycia.
+
+\subsection{Scenariusz 1: Sprawdzenie rzeczywistego czasu przyjazdu (ETA)}
+
+\begin{table}[h]
+    \centering
+    \begin{tabular}{|l|p{10cm}|}
+        \hline
+        \textbf{Nazwa przypadku}     & Sprawdzenie rzeczywistego czasu przyjazdu (Live)            \\ \hline
+        \textbf{Aktor główny}        & Pasażer                                                     \\ \hline
+        \textbf{Aktorzy wspierający} & System GPS, API Traffic                                     \\ \hline
+        \textbf{Warunek wstępny}     & Użytkownik znajduje się na ekranie wyboru przystanku.       \\ \hline
+        \textbf{Przebieg główny}     &
+        1. Użytkownik wybiera konkretny przystanek z listy lub mapy. \newline
+        2. System pobiera listę nadchodzących kursów dla tego przystanku. \newline
+        3. System odczytuje aktualną pozycję pojazdów przypisanych do tych kursów. \newline
+        4. System analizuje dane o natężeniu ruchu na trasie pojazdu. \newline
+        5. System oblicza estymowany czas przyjazdu (ETA). \newline
+        6. System wyświetla użytkownikowi odświeżaną listę odjazdów.                               \\ \hline
+        \textbf{Sytuacje wyjątkowe}  &
+        1a. Brak danych GPS z pojazdu – system wyświetla czas teoretyczny (z rozkładu) z adnotacją „brak danych live”. \newline
+        2a. Kurs został anulowany przez dyspozytora – system wyświetla status „Wypadł z rozkładu”. \\ \hline
+    \end{tabular}
+\end{table}
+
+\subsection{Scenariusz 2: Dodanie komunikatu o utrudnieniach}
+
+\begin{table}[h]
+    \centering
+    \begin{tabular}{|l|p{10cm}|}
+        \hline
+        \textbf{Nazwa przypadku} & Dodanie komunikatu o utrudnieniach drogowych                                            \\ \hline
+        \textbf{Aktor główny}    & Dyspozytor                                                                              \\ \hline
+        \textbf{Warunek wstępny} & Dyspozytor jest zalogowany do panelu administracyjnego.                                 \\ \hline
+        \textbf{Przebieg główny} &
+        1. Dyspozytor wybiera opcję „Dodaj komunikat”. \newline
+        2. System wyświetla formularz wyboru linii lub obszaru miasta. \newline
+        3. Dyspozytor wprowadza treść komunikatu (np. „Awaria sieci trakcyjnej”) i określa przewidywany czas trwania. \newline
+        4. Dyspozytor zatwierdza komunikat. \newline
+        5. System natychmiastowo publikuje informację na tablicach przystankowych online oraz w widoku mapy dla pasażerów. \\ \hline
+    \end{tabular}
+\end{table}
+
+\subsection{Scenariusz 3: Wyszukiwanie rozkładu jazdy konkretnej linii}
+
+\begin{table}[h]
+    \centering
+    \begin{tabular}{|l|p{10cm}|}
+        \hline
+        \textbf{Nazwa przypadku} & Przeglądanie statycznego rozkładu linii \\ \hline
+        \textbf{Aktor główny}    & Pasażer                                 \\ \hline
+        \textbf{Przebieg główny} &
+        1. Użytkownik wprowadza numer linii w wyszukiwarce. \newline
+        2. System wyświetla listę kierunków (pętli docelowych) dla tej linii. \newline
+        3. Użytkownik wybiera kierunek oraz konkretny przystanek z trasy. \newline
+        4. System generuje tabelaryczny rozkład jazdy (godziny i minuty) na dany dzień tygodnia. \newline
+        5. System zaznacza na rozkładzie kursy niskopodłogowe.             \\ \hline
+    \end{tabular}
+\end{table}
+
+\subsection{Scenariusz 4: Estymacja czasu dojazdu (Proces Systemowy)}
+
+\begin{table}[h]
+    \centering
+    \begin{tabular}{|l|p{10cm}|}
+        \hline
+        \textbf{Nazwa przypadku}     & Estymacja czasu dojazdu na podstawie Traffic              \\ \hline
+        \textbf{Aktor główny}        & System (Proces automatyczny)                              \\ \hline
+        \textbf{Aktorzy wspierający} & System zewnętrzny (Google Maps API / Traffic API)         \\ \hline
+        \textbf{Przebieg główny}     &
+        1. System identyfikuje aktualną pozycję pojazdu (GPS). \newline
+        2. System pobiera dane o natężeniu ruchu na odcinkach drogi między pojazdem a kolejnymi przystankami. \newline
+        3. System porównuje czas przejazdu teoretyczny z czasem uwzględniającym korki. \newline
+        4. System aktualizuje przewidywaną godzinę przyjazdu w bazie danych czasu rzeczywistego. \\ \hline
+    \end{tabular}
+\end{table}
+
+\subsection{Scenariusz 5: Śledzenie pojazdu na mapie interaktywnej}
+
+\begin{table}[h]
+    \centering
+    \begin{tabular}{|l|p{10cm}|}
+        \hline
+        \textbf{Nazwa przypadku}     & Wizualizacja pozycji pojazdu na mapie                  \\ \hline
+        \textbf{Aktor główny}        & Pasażer                                                \\ \hline
+        \textbf{Aktorzy wspierający} & Moduł map (np. OpenStreetMap)                          \\ \hline
+        \textbf{Przebieg główny}     &
+        1. Użytkownik wybiera opcję "Mapa Live". \newline
+        2. System wyświetla mapę miasta z naniesionymi przystankami. \newline
+        3. System pobiera pozycje wszystkich aktywnych pojazdów danej linii. \newline
+        4. System nanosi ikony pojazdów na mapę, wskazując kierunek ich poruszania się. \newline
+        5. Użytkownik klika w ikonę pojazdu, aby zobaczyć numer boczny i aktualne opóźnienie. \\ \hline
+    \end{tabular}
+\end{table}
+\newpage
+\subsection{Scenariusz 6: Aktualizacja bazy rozkładów (Import danych)}
+
+\begin{table}[h]
+    \centering
+    \begin{tabular}{|l|p{10cm}|}
+        \hline
+        \textbf{Nazwa przypadku} & Import nowego rozkładu jazdy (GTFS) \\ \hline
+        \textbf{Aktor główny}    & Administrator Systemu               \\ \hline
+        \textbf{Przebieg główny} &
+        1. Administrator przesyła plik z nowym harmonogramem do modułu zarządzania danymi. \newline
+        2. System weryfikuje poprawność danych (spójność przystanków i linii). \newline
+        3. System aktualizuje tabele rozkładów statycznych w bazie danych. \newline
+        4. System generuje potwierdzenie pomyślnej aktualizacji.       \\ \hline
+    \end{tabular}
+\end{table}
+
+\subsection{Scenariusz 7: Obsługa kursu wypadającego z rozkładu}
+
+\begin{table}[h]
+    \centering
+    \begin{tabular}{|l|p{10cm}|}
+        \hline
+        \textbf{Nazwa przypadku} & Automatyczne wycofanie kursu z tablicy Live     \\ \hline
+        \textbf{Aktor główny}    & System (Proces automatyczny)                    \\ \hline
+        \textbf{Opis}            &
+        1. System wykrywa brak sygnału GPS z pojazdu przez czas dłuższy niż 5 minut lub otrzymuje sygnał o awarii z komputera pokładowego. \newline
+        2. System oznacza kurs jako „Niedostępny/Awaria”. \newline
+        3. Algorytm ETA usuwa ten kurs z list odjazdów na wszystkich przystankach na trasie. \newline
+        4. System wysyła powiadomienie do dyspozytora w celu weryfikacji sytuacji. \\ \hline
+    \end{tabular}
+\end{table}
+
+% --- PUNKT 6: SPECYFIKACJA DFD ---
+\newpage
+\section{Specyfikacja DFD (Data Flow Diagram)}
+
+Specyfikacja przepływu danych obrazuje sposób, w jaki informacje są pobierane, przetwarzane i składowane w systemie TransTime.
+
+\subsection{Diagram wstępny (Poziom 0 - Kontekstowy)}
+Diagram kontekstowy przedstawia system jako jedną funkcję procesową i jego interakcje z otoczeniem.
+
+\begin{figure}[h]
+    \centering
+    % TODO: Wgraj plik o nazwie dfd_level0.png
+    % \includegraphics[width=0.7\textwidth]{dfd_level0.png}
+    \caption{Diagram kontekstowy (DFD Poziom 0).}
+\end{figure}
+
+\textbf{Główne przepływy danych na poziomie 0:}
+\begin{itemize}
+    \item \textbf{Pasażer:} Zapytanie o rozkład $\rightarrow$ System; Wyświetlenie ETA $\leftarrow$ System.
+    \item \textbf{System GPS:} Aktualna pozycja pojazdu $\rightarrow$ System.
+    \item \textbf{Zarząd Dróg (Traffic API):} Dane o natężeniu ruchu $\rightarrow$ System.
+    \item \textbf{Dyspozytor:} Parametry linii i komunikaty $\rightarrow$ System.
+\end{itemize}
+
+\subsection{Dekompozycja procesów (Poziom 1)}
+Na tym poziomie system został rozbity na główne procesy funkcjonalne.
+
+\begin{figure}[h]
+    \centering
+    % TODO: Wgraj plik o nazwie dfd_level1.png 
+    % \includegraphics[width=0.9\textwidth]{dfd_level1.png}
+    \caption{Dekompozycja procesów (DFD Poziom 1).}
+\end{figure}
+
+\textbf{Wykaz procesów atomowych:}
+\begin{enumerate}
+    \item \textbf{P1. Zarządzanie bazą rozkładów:} Przechowywanie statycznych godzin odjazdów.
+    \item \textbf{P2. Moduł śledzenia GPS:} Odbiór i normalizacja współrzędnych z pojazdów.
+    \item \textbf{P3. Algorytm Estymacji (ETA):} Proces łączący dane statyczne, pozycję GPS oraz dane Traffic w celu obliczenia faktycznego opóźnienia.
+    \item \textbf{P4. Publikacja informacji:} Generowanie widoków dla pasażera (tablica przystankowa, mapa).
+    \item \textbf{P5. Obsługa alertów:} Rejestracja komunikatów o zdarzeniach drogowych.
+\end{enumerate}
+
+\subsection{Magazyny danych (Data Stores)}
+W systemie zidentyfikowano następujące bazy danych:
+\begin{itemize}
+    \item \textbf{D1 Baza Rozkładów:} Dane statyczne o liniach i przystankach.
+    \item \textbf{D2 Status Pojazdów:} Dynamiczne dane o aktualnej pozycji i prędkości.
+    \item \textbf{D3 Rejestr Komunikatów:} Baza aktywnych utrudnień i ogłoszeń.
+\end{itemize}
+
+\subsection{Opis przepływów danych (Słownik danych)}
+Poniższa tabela opisuje strukturę najważniejszych informacji krążących w systemie, widocznych na diagramach DFD.
+
+\begin{table}[h]
+    \centering
+    \begin{tabular}{|l|l|p{7cm}|}
+        \hline
+        \textbf{Nazwa przepływu} & \textbf{Źródło / Cel}        & \textbf{Zawartość (Atrybuty)}                                              \\ \hline
+        Dane GPS                 & Pojazd $\rightarrow$ P2      & ID pojazdu, długość i szerokość geogr., prędkość, timestamp.               \\ \hline
+        Dane Traffic             & Traffic API $\rightarrow$ P3 & ID odcinka drogi, współczynnik zakorkowania (0-1), średnia prędkość.       \\ \hline
+        Wynik ETA                & P3 $\rightarrow$ P4          & ID kursu, ID przystanku, przewidywana minuta przyjazdu, status opóźnienia. \\ \hline
+        Zapytanie pasażera       & Pasażer $\rightarrow$ P4     & ID przystanku lub numer linii, koordynaty użytkownika.                     \\ \hline
+        Alert drogowy            & Dyspozytor $\rightarrow$ P5  & Typ zdarzenia, opis tekstowy, ID dotkniętych linii, czas wygaśnięcia.      \\ \hline
+    \end{tabular}
+\end{table}
+
+\subsection{Procesy atomowe (Specyfikacja logiczna)}
+Najniższy poziom dekompozycji (procesy atomowe) realizuje następującą logikę:
+\begin{itemize}
+    \item \textbf{P3.1 (Oblicz odległość):} Na podstawie GPS pojazdu i współrzędnych przystanku wylicza dystans pozostały do przejechania.
+    \item \textbf{P3.2 (Koryguj o ruch):} Mnoży bazowy czas przejazdu przez współczynnik opóźnienia pobrany z modułu Traffic.
+    \item \textbf{P4.1 (Sortuj odjazdy):} Układa kursy chronologicznie według wyliczonego czasu przyjazdu.
+\end{itemize}
+
+% --- PUNKT 7: SYSTEMOWY DIAGRAM KLAS ---
+\newpage
+\section{Systemowy diagram klas}
+
+Systemowy diagram klas przedstawia techniczną strukturę systemu, definiując typy danych, metody oraz szczegółowe powiązania między komponentami oprogramowania.
+
+\begin{figure}[h]
+    \centering
+    % TODO: Wgraj plik o nazwie diagram7.png 
+    % \includegraphics[width=\textwidth]{diagram7.png}
+    \caption{Systemowy diagram klas (widok implementacyjny).}
+    \label{fig:system_classes}
+\end{figure}
+
+\subsection{Specyfikacja techniczna klas}
+
+\begin{itemize}
+    \item \textbf{VehicleTracker}: Klasa odpowiedzialna za komunikację z modułami GPS.
+          \begin{itemize}
+              \item Atrybuty: \texttt{- vehicleId: int}, \texttt{- lastPosition: GeoLocation}, \texttt{- speed: double}
+              \item Metody: \texttt{+ updatePosition(lat, lng): void}, \texttt{+ getVelocity(): double}
+          \end{itemize}
+
+    \item \textbf{ETACalculator}: Silnik obliczeniowy systemu.
+          \begin{itemize}
+              \item Atrybuty: \texttt{- trafficFactor: double}, \texttt{- baseTravelTime: int}
+              \item Metody: \texttt{+ estimateArrivalTime(tripId, stopId): DateTime}, \texttt{+ applyTrafficDelay(routeId): void}
+          \end{itemize}
+
+    \item \textbf{ScheduleManager}: Obsługuje dostęp do bazy danych rozkładów.
+          \begin{itemize}
+              \item Metody: \texttt{+ getStaticSchedule(lineId): List<Departure>}, \texttt{+ updateSchedule(file: GTFS): boolean}
+          \end{itemize}
+\end{itemize}
+
+\subsection{Relacje techniczne}
+W diagramie systemowym uwzględniono:
+\begin{itemize}
+    \item \textbf{Kompozycję:} Klasa \texttt{Route} składa się z obiektów klasy \texttt{Stop}.
+    \item \textbf{Interfejsy:} Klasa \texttt{DataProvider} definiuje standard komunikacji dla zewnętrznych API (GPS i Traffic).
+    \item \textbf{Zależności:} Klasa \texttt{ViewController} zależy od klasy \texttt{ETACalculator} w celu pobrania danych do wyświetlenia.
+\end{itemize}
+
+\subsection{Typy pomocnicze i Interfejsy}
+W celu zapewnienia elastyczności systemu wprowadzono:
+\begin{itemize}
+    \item \textbf{Enum VehicleType:} \{BUS, TRAM, SUBWAY, TRAIN\} – pozwala na filtrowanie rozkładów według środka transportu.
+    \item \textbf{Interface IExternalDataConnector:} Definiuje metody \texttt{fetchData()} oraz \texttt{parseResponse()}, co umożliwia łatwe podłączenie nowych dostawców danych Traffic (np. przejście z Google Maps na TomTom).
+    \item \textbf{Class GeoLocation:} Typ złożony przechowujący współrzędne \texttt{latitude} oraz \texttt{longitude}.
+\end{itemize}
+
+
+% --- PUNKT 8: ARCHITEKTURA I INTERFEJS ---
+\newpage
+\section{Architektura systemu i projekt interfejsu}
+
+\subsection{Koncepcja architektury}
+System został zaprojektowany w oparciu o \textbf{architekturę warstwową (n-tier architecture)}, co zapewnia separację logiki biznesowej od sposobu prezentacji danych.
+
+\begin{itemize}
+    \item \textbf{Warstwa Prezentacji (Frontend):} Aplikacja webowa i mobilna komunikująca się z serwerem poprzez API. Odpowiada za renderowanie mapy i tablic odjazdów.
+    \item \textbf{Warstwa Logiki (Backend):} Centralny serwer przetwarzający dane. Tu znajduje się silnik ETA oraz moduły integracji z GPS.
+    \item \textbf{Warstwa Danych (Database):} Relacyjna baza danych przechowująca rozkłady statyczne oraz nierelacyjna baza typu Key-Value dla szybkich aktualizacji pozycji pojazdów.
+\end{itemize}
+
+\subsection{Interfejsy komunikacyjne}
+Komunikacja między modułami odbywa się za pomocą standardu \textbf{REST API}. Kluczowe punkty styku (Endpoints):
+\begin{itemize}
+    \item \texttt{GET /stops/\{id\}/departures} – pobiera listę odjazdów w czasie rzeczywistym.
+    \item \texttt{POST /admin/alerts} – przesyła nowy komunikat o utrudnieniach.
+    \item \texttt{GET /vehicles/positions} – pobiera współrzędne wszystkich pojazdów danej linii.
+\end{itemize}
+
+\subsection{Mocki widoków (User Interface)}
+Poniższe makiety przedstawiają kluczowe ekrany aplikacji użytkownika końcowego.
+
+\begin{figure}[h]
+    \centering
+    % TODO: Wgraj plik o nazwie mockup_main.png
+    % \includegraphics[width=0.45\textwidth]{mockup_main.png}
+    \hfill
+    % TODO: Wgraj plik o nazwie mockup_map.png
+    % \includegraphics[width=0.45\textwidth]{mockup_map.png}
+    \caption{Makiety interfejsu: Tablica odjazdów (lewo) oraz Mapa Live (prawo).}
+\end{figure}
+
+\textbf{Opis widoków:}
+\begin{enumerate}
+    \item \textbf{Widok Tablicy Przystankowej:} Wyświetla numer linii, kierunek oraz czas do odjazdu. Czas rzeczywisty jest wyróżniony kolorem zielonym lub ikoną fal radiowych.
+    \item \textbf{Widok Mapy:} Interaktywna mapa z naniesioną pozycją użytkownika oraz ikonami autobusów/tramwajów poruszającymi się w czasie rzeczywistym.
+\end{enumerate}
+\subsection{Schemat blokowy architektury}
+Poniższy diagram (Rysunek \ref{fig:architecture}) przedstawia fizyczny i logiczny podział systemu na komponenty oraz protokoły komunikacyjne użyte do ich integracji.
+
+\begin{figure}[h]
+    \centering
+    % TODO: Wgraj plik o nazwie architektura.png
+    % \includegraphics[width=0.8\textwidth]{architektura.png}
+    \caption{Schemat architektury warstwowej systemu TransTime.}
+    \label{fig:architecture}
+\end{figure}
+
+\textbf{Komponenty infrastruktury:}
+\begin{itemize}
+    \item \textbf{Load Balancer:} Rozdziela ruch między instancje serwera API (zapewnienie wysokiej dostępności).
+    \item \textbf{Redis Cache:} Przechowuje najświeższe dane o pozycjach GPS, aby nie obciążać głównej bazy danych przy każdym zapytaniu pasażera.
+    \item \textbf{Worker Services:} Niezależne procesy w tle, które co kilka sekund odpytują API Traffic i aktualizują estymacje czasowe.
+\end{itemize}
+\end{document}
