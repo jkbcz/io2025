@@ -149,7 +149,7 @@ Poniższe tabele szczegółowo opisują przebieg interakcji użytkownika z syste
     \centering
     \begin{tabular}{|l|p{10cm}|}
         \hline
-        \textbf{Nazwa przypadku} & Dodanie komunikatu o utrudnieniach drogowych                                            \\ \hline
+        \textbf{Nazwa przypadku} & Zarządzanie komunikatem o utrudnieniach drogowych                                            \\ \hline
         \textbf{Aktor główny}    & Dyspozytor                                                                              \\ \hline
         \textbf{Warunek wstępny} & Dyspozytor jest zalogowany do panelu administracyjnego.                                 \\ \hline
         \textbf{Przebieg główny} &
@@ -167,14 +167,13 @@ Poniższe tabele szczegółowo opisują przebieg interakcji użytkownika z syste
     \centering
     \begin{tabular}{|l|p{10cm}|}
         \hline
-        \textbf{Nazwa przypadku} & Przeglądanie statycznego rozkładu linii \\ \hline
+        \textbf{Nazwa przypadku} & Przeglądanie  rozkładu linii \\ \hline
         \textbf{Aktor główny}    & Pasażer                                 \\ \hline
         \textbf{Przebieg główny} &
         1. Użytkownik wprowadza numer linii w wyszukiwarce. \newline
         2. System wyświetla listę kierunków (pętli docelowych) dla tej linii. \newline
         3. Użytkownik wybiera kierunek oraz konkretny przystanek z trasy. \newline
-        4. System generuje tabelaryczny rozkład jazdy (godziny i minuty) na dany dzień tygodnia. \newline
-        5. System zaznacza na rozkładzie kursy niskopodłogowe.             \\ \hline
+        4. System generuje tabelaryczny rozkład jazdy (godziny i minuty) na dany dzień tygodnia. \\ \hline
     \end{tabular}
 \end{table}
 
@@ -229,20 +228,26 @@ Poniższe tabele szczegółowo opisują przebieg interakcji użytkownika z syste
     \end{tabular}
 \end{table}
 
-\subsection{Scenariusz 7: Obsługa kursu wypadającego z rozkładu}
+\subsection{Scenariusz 7: Obsługa kursu wypadającego z rozkładu (Anulowanie kursu)}
 
 \begin{table}[h]
-    \centering
-    \begin{tabular}{|l|p{10cm}|}
-        \hline
-        \textbf{Nazwa przypadku} & Automatyczne wycofanie kursu z tablicy Live     \\ \hline
-        \textbf{Aktor główny}    & System (Proces automatyczny)                    \\ \hline
-        \textbf{Opis}            &
-        1. System wykrywa brak sygnału GPS z pojazdu przez czas dłuższy niż 5 minut lub otrzymuje sygnał o awarii z komputera pokładowego. \newline
-        2. System oznacza kurs jako „Niedostępny/Awaria”. \newline
-        3. Algorytm ETA usuwa ten kurs z list odjazdów na wszystkich przystankach na trasie. \newline
-        4. System wysyła powiadomienie do dyspozytora w celu weryfikacji sytuacji. \\ \hline
-    \end{tabular}
+\centering
+\begin{tabular}{|l|p{10cm}|}
+\hline
+\textbf{Nazwa przypadku} & Oznaczenie kursu jako anulowanego \\ \hline
+\textbf{Aktor główny} & Dyspozytor \\ \hline
+\textbf{Aktorzy wspierający} & System (Proces automatyczny) \\ \hline
+\textbf{Warunek wstępny} & Kurs jest widoczny w systemie jako aktywny, ale wystąpiły przeszkody w jego realizacji (awaria, brak kontaktu GPS). \\ \hline
+\textbf{Przebieg główny} & 
+1. System generuje alert o braku sygnału GPS z pojazdu przez ponad 5 minut lub o zgłoszonej awarii technicznej. \newline
+2. Dyspozytor odbiera powiadomienie w panelu sterowania. \newline
+3. Dyspozytor weryfikuje status pojazdu (np. poprzez kontakt radiowy). \newline
+4. Dyspozytor wybiera opcję „Anuluj kurs” w systemie dla danej linii i godziny. \newline
+5. System aktualizuje status kursu na „Wypadł z rozkładu”. \newline
+6. Informacja zostaje natychmiast rozesłana do modułów pasażerskich (Tablice Live, Mapa). \\ \hline
+\textbf{Sytuacje wyjątkowe} & 
+4a. Dyspozytor stwierdza, że to tylko błąd GPS – nie anuluje kursu, system nadal wyświetla czas teoretyczny z adnotacją „Brak danych live”. \\ \hline
+\end{tabular}
 \end{table}
 
 % --- PUNKT 6: SPECYFIKACJA DFD ---
