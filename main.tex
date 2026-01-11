@@ -273,7 +273,7 @@ Diagram kontekstowy przedstawia system jako jedną funkcję procesową i jego in
     \item \textbf{Dyspozytor:} Parametry linii i komunikaty $\rightarrow$ System.
 \end{itemize}
 
-\subsection{Dekompozycja procesów (Poziom 1)}
+\subsection{Dekompozycja procesów (Poziom 1 - systemowy)}
 Na tym poziomie system został rozbity na główne procesy funkcjonalne.
 
 \begin{figure}[H]
@@ -284,9 +284,9 @@ Na tym poziomie system został rozbity na główne procesy funkcjonalne.
 
 \textbf{Wykaz procesów atomowych:}
 \begin{enumerate}
-    \item \textbf{P1. Zarządzanie bazą rozkładów:} Przechowywanie statycznych godzin odjazdów.
-    \item \textbf{P2. Moduł śledzenia GPS:} Odbiór i normalizacja współrzędnych z pojazdów.
-    \item \textbf{P3. Algorytm Estymacji (ETA):} Proces łączący dane statyczne, pozycję GPS oraz dane Traffic w celu obliczenia faktycznego opóźnienia.
+    \item \textbf{P1. Aktualizacja rozkładów:} Przechowywanie statycznych godzin odjazdów.
+    \item \textbf{P2. Estymacja czasu przyjazdu (ETA):} Proces łączący dane statyczne, pozycję GPS oraz komunikaty o utrudnieniach w celu obliczenia faktycznego opóźnienia.
+    \item \textbf{P3. Wyświetleniu rozkładu:} Wyświetlenie informacji na temat kursów obsługiwanych przez daną linię.
     \item \textbf{P4. Publikacja informacji:} Generowanie widoków dla pasażera (tablica przystankowa, mapa).
     \item \textbf{P5. Obsługa alertów:} Rejestracja komunikatów o zdarzeniach drogowych.
 \end{enumerate}
@@ -294,9 +294,8 @@ Na tym poziomie system został rozbity na główne procesy funkcjonalne.
 \subsection{Magazyny danych (Data Stores)}
 W systemie zidentyfikowano następujące bazy danych:
 \begin{itemize}
-    \item \textbf{D1 Baza Rozkładów:} Dane statyczne o liniach i przystankach.
-    \item \textbf{D2 Status Pojazdów:} Dynamiczne dane o aktualnej pozycji i prędkości.
-    \item \textbf{D3 Rejestr Komunikatów:} Baza aktywnych utrudnień i ogłoszeń.
+    \item \textbf{D1 Rozkłady jazd:} Dane statyczne o liniach i przystankach.
+    \item \textbf{D2 Komunikaty o utrudnieniach:} Baza aktywnych utrudnień i ogłoszeń.
 \end{itemize}
 
 \subsection{Opis przepływów danych (Słownik danych)}
@@ -308,19 +307,29 @@ Poniższa tabela opisuje strukturę najważniejszych informacji krążących w s
         \hline
         \textbf{Nazwa przepływu} & \textbf{Źródło / Cel}        & \textbf{Zawartość (Atrybuty)}                                              \\ \hline
         Dane GPS                 & Pojazd $\rightarrow$ P2      & ID pojazdu, długość i szerokość geogr., prędkość, timestamp.               \\ \hline
-        Dane Traffic             & Traffic API $\rightarrow$ P3 & ID odcinka drogi, współczynnik zakorkowania (0-1), średnia prędkość.       \\ \hline
-        Wynik ETA                & P3 $\rightarrow$ P4          & ID kursu, ID przystanku, przewidywana minuta przyjazdu, status opóźnienia. \\ \hline
-        Zapytanie pasażera       & Pasażer $\rightarrow$ P4     & ID przystanku lub numer linii, koordynaty użytkownika.                     \\ \hline
+        Dane Traffic             & System GPS $\rightarrow$ P2 & ID odcinka drogi, współczynnik zakorkowania (0-1), średnia prędkość.       \\ \hline
+        Wynik ETA                & P2 $\rightarrow$ Pasażer          & ID kursu, ID przystanku, przewidywana minuta przyjazdu, status opóźnienia. \\ \hline
+        Zapytanie pasażera       & Pasażer $\rightarrow$ P2     & ID przystanku lub numer linii, koordynaty użytkownika.                     \\ \hline
         Alert drogowy            & Dyspozytor $\rightarrow$ P5  & Typ zdarzenia, opis tekstowy, ID dotkniętych linii, czas wygaśnięcia.      \\ \hline
     \end{tabular}
 \end{table}
 
+\subsection{Dekompozycja procesu poziomu 1-ego}
+Na tym poziomie proces 2 został zdekomponowany na podprocesy.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1\textwidth]{dfd_2.png}
+    \caption{Dekompozycja procesu 2.}
+\end{figure}
+
 \subsection{Procesy atomowe (Specyfikacja logiczna)}
 Najniższy poziom dekompozycji (procesy atomowe) realizuje następującą logikę:
 \begin{itemize}
-    \item \textbf{P3.1 (Oblicz odległość):} Na podstawie GPS pojazdu i współrzędnych przystanku wylicza dystans pozostały do przejechania.
-    \item \textbf{P3.2 (Koryguj o ruch):} Mnoży bazowy czas przejazdu przez współczynnik opóźnienia pobrany z modułu Traffic.
-    \item \textbf{P4.1 (Sortuj odjazdy):} Układa kursy chronologicznie według wyliczonego czasu przyjazdu.
+    \item \textbf{P2.1 (Pobranie danych trasy):} Przekazuje miejsce docelowe oraz godzinę przyjazdu oczekiwaną przez pasażera do kolejnego procesu.
+    \item \textbf{P2.2 (Szukanie najbliższych linii):} Pobiera rozkłady, które obejmują kursy z przystankami znajdującymi się w bliskiej odległości do miejsca docelowego oraz odjazdu.
+    \item \textbf{P2.3 (Weryfikacja aktualności trasy):} Na bazie odnalezionych kursów i komunikatów o utrudnieniach przesiewa nieaktualne kursy.
+    \item \textbf{P2.4 (Obliczanie daty przyjazdu):} Na podstawie GPS pojazdu i współrzędnych przystanku przewiduje pozostały czas do miejsca docelowego.
 \end{itemize}
 
 % --- PUNKT 7: SYSTEMOWY DIAGRAM KLAS ---
