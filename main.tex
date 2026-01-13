@@ -98,7 +98,7 @@ Dziedzinowy diagram klas przedstawia kluczowe pojęcia biznesowe występujące w
 \begin{itemize}
     \item \textbf{Linia:} Reprezentuje numer linii (np. „Tramwaj 8”) oraz typ pojazdu. Grupuje kursy realizowane według rozkładu.
     \item \textbf{Kurs (Trip):} Konkretna realizacja linii o określonej godzinie, powiązana z pojazdem. Zawiera status i umożliwia obliczanie ETA.
-    \item \textbf{Harmonogram:} Reprezentuje postoje kursu na przystankach, zawiera informacje o kolejności i czasach planowanych oraz rzeczywistych.
+    \item \textbf{Postój:} Reprezentuje postoje kursu na przystankach, zawiera informacje o kolejności i czasach planowanych oraz rzeczywistych.
     \item \textbf{Przystanek:} Punkt na mapie z nazwą i lokalizacją GPS, obsługiwany przez wiele linii i kursów.
     \item \textbf{Pojazd:} Fizyczna jednostka realizująca kurs, przesyłająca swoje położenie i prędkość.
     \item \textbf{Zdarzenie drogowe:} Informacja o utrudnieniach na drodze, mająca określony czas i obszar działania. Wpływa na obliczenia czasu przejazdu, ale nie jest trwale powiązana z kursem.
@@ -108,7 +108,7 @@ Dziedzinowy diagram klas przedstawia kluczowe pojęcia biznesowe występujące w
 Zastosowano następujące powiązania:
 \begin{itemize}
     \item Jedna \textbf{Linia} posiada wiele \textbf{Kursów}.
-    \item Każdy \textbf{Kurs} składa się z wielu \textbf{Postojów} na \textbf{Przystankach}, ułożonych w określonej kolejności (harmonogram).
+    \item Każdy \textbf{Kurs} składa się z wielu \textbf{Postojów} na \textbf{Przystankach}, ułożonych w określonej kolejności.
     \item \textbf{Pojazd} jest przypisany do dokładnie jednego \textbf{Kursu} w danym momencie.
     \item \textbf{Zdarzenia drogowe} mają przypisany obszar działania i wpływają dynamicznie na obliczanie czasu przejazdu kursów, lecz nie są z nimi trwale powiązane.
 \end{itemize}
