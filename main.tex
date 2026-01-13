@@ -89,28 +89,28 @@ Dziedzinowy diagram klas przedstawia kluczowe pojęcia biznesowe występujące w
 
 \begin{figure}[h]
     \centering
-    % TODO: Wgraj plik o nazwie diagram4.png 
-    % \includegraphics[width=0.9\textwidth]{diagram4.png}
+    \includegraphics[width=1.1\textwidth]{ddk.png}
     \caption{Dziedzinowy diagram klas systemu informacji pasażerskiej.}
     \label{fig:domain_model}
 \end{figure}
 
 \subsection{Opis kluczowych klas dziedzinowych}
 \begin{itemize}
-    \item \textbf{Linia:} Reprezentuje konkretny numer linii (np. "Tramwaj 8"). Przechowuje informacje o trasie i typie pojazdu.
-    \item \textbf{Przystanek:} Punkt na mapie, do którego przypisane są odjazdy. Zawiera nazwę, lokalizację GPS oraz listę linii, które go obsługują.
-    \item \textbf{Kurs (Trip):} Konkretna realizacja przejazdu danej linii o określonej godzinie. To do kursu przypisane są dane o opóźnieniach.
-    \item \textbf{Pojazd:} Fizyczna jednostka (autobus/tramwaj) przypisana do kursu, przesyłająca swoje współrzędne geograficzne.
-    \item \textbf{Zdarzenie drogowe:} Informacja o utrudnieniach (korki, awarie), która wpływa na estymację czasu dojazdu.
+    \item \textbf{Linia:} Reprezentuje numer linii (np. „Tramwaj 8”) oraz typ pojazdu. Grupuje kursy realizowane według rozkładu.
+    \item \textbf{Kurs (Trip):} Konkretna realizacja linii o określonej godzinie, powiązana z pojazdem. Zawiera status i umożliwia obliczanie ETA.
+    \item \textbf{Postój:} Reprezentuje postoje kursu na przystankach, zawiera informacje o kolejności i czasach planowanych oraz rzeczywistych.
+    \item \textbf{Przystanek:} Punkt na mapie z nazwą i lokalizacją GPS, obsługiwany przez wiele linii i kursów.
+    \item \textbf{Pojazd:} Fizyczna jednostka realizująca kurs, przesyłająca swoje położenie i prędkość.
+    \item \textbf{Zdarzenie drogowe:} Informacja o utrudnieniach na drodze, mająca określony czas i obszar działania. Wpływa na obliczenia czasu przejazdu, ale nie jest trwale powiązana z kursem.
 \end{itemize}
 
 \subsection{Relacje}
 Zastosowano następujące powiązania:
 \begin{itemize}
     \item Jedna \textbf{Linia} posiada wiele \textbf{Kursów}.
-    \item Każdy \textbf{Kurs} obsługuje wiele \textbf{Przystanków} w określonej kolejności (harmonogram).
+    \item Każdy \textbf{Kurs} składa się z wielu \textbf{Postojów} na \textbf{Przystankach}, ułożonych w określonej kolejności.
     \item \textbf{Pojazd} jest przypisany do dokładnie jednego \textbf{Kursu} w danym momencie.
-    \item \textbf{Zdarzenie drogowe} może wpływać na wiele \textbf{Kursów} przechodzących przez dany obszar.
+    \item \textbf{Zdarzenia drogowe} mają przypisany obszar działania i wpływają dynamicznie na obliczanie czasu przejazdu kursów, lecz nie są z nimi trwale powiązane.
 \end{itemize}
 
 
