@@ -338,10 +338,9 @@ Najniższy poziom dekompozycji (procesy atomowe) realizuje następującą logik�
 
 Systemowy diagram klas przedstawia techniczną strukturę systemu, definiując typy danych, metody oraz szczegółowe powiązania między komponentami oprogramowania.
 
-\begin{figure}[h]
+\begin{figure}[H]
     \centering
-    % TODO: Wgraj plik o nazwie diagram7.png 
-    % \includegraphics[width=\textwidth]{diagram7.png}
+    \includegraphics[width=\textwidth]{SDK.png}
     \caption{Systemowy diagram klas (widok implementacyjny).}
     \label{fig:system_classes}
 \end{figure}
@@ -349,39 +348,75 @@ Systemowy diagram klas przedstawia techniczną strukturę systemu, definiując t
 \subsection{Specyfikacja techniczna klas}
 
 \begin{itemize}
-    \item \textbf{VehicleTracker}: Klasa odpowiedzialna za komunikację z modułami GPS.
+    \item \textbf{TrackerPojazdow}: Klasa odpowiedzialna za śledzenie pojazdów i aktualizację ich pozycji na podstawie danych GPS.
           \begin{itemize}
-              \item Atrybuty: \texttt{- vehicleId: int}, \texttt{- lastPosition: GeoLocation}, \texttt{- speed: double}
-              \item Metody: \texttt{+ updatePosition(lat, lng): void}, \texttt{+ getVelocity(): double}
+              \item Atrybuty: \texttt{- id: UUID}, \texttt{- szerokośćGeograficzna: double}, \texttt{- długośćGeograficzna: double}, \texttt{- średniaPrędkość: double}
+              \item Metody: \texttt{+ uaktualnijPozycję(): void}, \texttt{+ ETA(przystanek: Przystanek): TimeDelta}
           \end{itemize}
 
-    \item \textbf{ETACalculator}: Silnik obliczeniowy systemu.
+    \item \textbf{KalkulatorETA}: Silnik obliczeniowy czasu przybycia pojazdu na dany przystanek.
           \begin{itemize}
-              \item Atrybuty: \texttt{- trafficFactor: double}, \texttt{- baseTravelTime: int}
-              \item Metody: \texttt{+ estimateArrivalTime(tripId, stopId): DateTime}, \texttt{+ applyTrafficDelay(routeId): void}
+              \item Atrybuty: brak stanów przechowywanych na poziomie klasy (stateless)
+              \item Metody: \texttt{+ obliczETA(idPojazdu: UUID, przystanek: Przystanek): TimeDelta}
+              \item Opis: Metoda wykorzystuje zewnętrzne serwisy, takie jak \texttt{SerwisPostojow} (dane o rozkładach i postojach) oraz \texttt{SerwisAdministracyjny} (utrudnienia), aby precyzyjnie obliczyć przewidywany czas przybycia.
           \end{itemize}
 
-    \item \textbf{ScheduleManager}: Obsługuje dostęp do bazy danych rozkładów.
+    \item \textbf{SerwisPostojow}: Fasada odpowiedzialna za zarządzanie danymi o postojach pojazdów i ich rozkładach.
           \begin{itemize}
-              \item Metody: \texttt{+ getStaticSchedule(lineId): List<Departure>}, \texttt{+ updateSchedule(file: GTFS): boolean}
+              \item Metody: \texttt{+ pobierzPostoj(idPostoju: UUID): Postoj}, \texttt{+ uaktualnijPostoj(idPostoju: UUID, postoj: Postoj): void}, \texttt{+ usunPostoj(idPostoju: UUID): void}, \texttt{+ dystans(przystanek: Przystanek): double}
+              \item Opis: Zarządza danymi o postojach i pozwala na wyliczanie odległości do przystanku.
+          \end{itemize}
+
+    \item \textbf{SerwisAdministracyjny}: Zarządza informacjami o utrudnieniach i rozkładach.
+          \begin{itemize}
+              \item Metody: \texttt{+ pobierzUtrudnienia(): List<Utrudnienie>}, \texttt{+ dodajUtrudnienie(utrudnienie: Utrudnienie): void}, \texttt{+ uaktualnijRozkład(rozkład: List<Postoj>): void}, \texttt{+ dodajRozkład(rozkład: List<Postoj>): void}
+              \item Opis: Zapewnia dostęp do danych o utrudnieniach drogowych oraz aktualizuje rozkłady jazdy.
+          \end{itemize}
+
+    \item \textbf{SerwisPasazera}: Udostępnia funkcjonalności dla pasażera, takie jak pobieranie map, rozkładów i obliczanie ETA.
+          \begin{itemize}
+              \item Metody: \texttt{+ obliczETA(przystanek: Przystanek): TimeDelta}, \texttt{+ pobierzMape(): Mapa}, \texttt{+ pobierzRozkład(idLinii: UUID): List<Postoj>}
+          \end{itemize}
+
+    \item \textbf{Mapa}: Klasa reprezentująca mapę z lokalizacjami pasażerów, pojazdów oraz postojów.
+          \begin{itemize}
+              \item Atrybuty: \texttt{- lokalizacjaPasazera: (double, double)}, \texttt{- lokalizacjePojazdow: Map<UUID, (double, double)>}, \texttt{- postoje: Map<UUID, List<Postoj>>}
+              \item Metody: \texttt{+ wyswietl(): void}
+          \end{itemize}
+
+    \item \textbf{KlientGPS}: Klient komunikujący się z modułem GPS, zwracający pozycję pojazdu lub użytkownika.
+          \begin{itemize}
+              \item Metody: \texttt{+ pobierzLokalizację(idPojazdu: UUID): (double, double)}, \texttt{+ pobierzLokalizację(idUzytkownika: UUID): (double, double)}
           \end{itemize}
 \end{itemize}
 
 \subsection{Relacje techniczne}
+
 W diagramie systemowym uwzględniono:
+
 \begin{itemize}
-    \item \textbf{Kompozycję:} Klasa \texttt{Route} składa się z obiektów klasy \texttt{Stop}.
-    \item \textbf{Interfejsy:} Klasa \texttt{DataProvider} definiuje standard komunikacji dla zewnętrznych API (GPS i Traffic).
-    \item \textbf{Zależności:} Klasa \texttt{ViewController} zależy od klasy \texttt{ETACalculator} w celu pobrania danych do wyświetlenia.
+    \item \textbf{Asocjacje i zależności}:  
+          \begin{itemize}
+              \item \texttt{KalkulatorETA} zależy od \texttt{SerwisPostojow} i \texttt{SerwisAdministracyjny} w celu pobrania niezbędnych danych do wyliczeń.
+              \item \texttt{SerwisPasazera} korzysta z \texttt{KalkulatorETA} oraz \texttt{Mapa} do obsługi zapytań użytkownika.
+              \item \texttt{KlientGPS} dostarcza dane lokalizacyjne dla \texttt{TrackerPojazdow} oraz \texttt{Mapa}.
+          \end{itemize}
+
+    \item \textbf{Brak repozytoriów:}  
+          Na tym poziomie abstrakcji zdecydowano się nie modelować osobnych klas repozytoriów, gdyż serwisy pełnią funkcję warstwy dostępu do danych.
 \end{itemize}
 
-\subsection{Typy pomocnicze i Interfejsy}
-W celu zapewnienia elastyczności systemu wprowadzono:
+\subsection{Typy pomocnicze}
+
 \begin{itemize}
-    \item \textbf{Enum VehicleType:} \{BUS, TRAM, SUBWAY, TRAIN\} – pozwala na filtrowanie rozkładów według środka transportu.
-    \item \textbf{Interface IExternalDataConnector:} Definiuje metody \texttt{fetchData()} oraz \texttt{parseResponse()}, co umożliwia łatwe podłączenie nowych dostawców danych Traffic (np. przejście z Google Maps na TomTom).
-    \item \textbf{Class GeoLocation:} Typ złożony przechowujący współrzędne \texttt{latitude} oraz \texttt{longitude}.
+    \item \textbf{Typy pomocnicze:}  
+          \begin{itemize}
+              \item \texttt{UUID} – unikalny identyfikator obiektów takich jak pojazd, przystanek, postój itp.
+              \item \texttt{TimeDelta} – typ reprezentujący odstęp czasu.
+              \item \texttt{Mapa} – obiekt przechowujący aktualne lokalizacje i umożliwiający wizualizację.
+          \end{itemize}
 \end{itemize}
+
 
 
 % --- PUNKT 8: ARCHITEKTURA I INTERFEJS ---
