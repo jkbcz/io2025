@@ -149,7 +149,7 @@ Poniższe tabele szczegółowo opisują przebieg interakcji użytkownika z syste
     \centering
     \begin{tabular}{|l|p{10cm}|}
         \hline
-        \textbf{Nazwa przypadku} & Zarządzanie komunikatem o utrudnieniach drogowych                                            \\ \hline
+        \textbf{Nazwa przypadku} & Zarządzanie komunikatem o utrudnieniach drogowych                                       \\ \hline
         \textbf{Aktor główny}    & Dyspozytor                                                                              \\ \hline
         \textbf{Warunek wstępny} & Dyspozytor jest zalogowany do panelu administracyjnego.                                 \\ \hline
         \textbf{Przebieg główny} &
@@ -167,8 +167,8 @@ Poniższe tabele szczegółowo opisują przebieg interakcji użytkownika z syste
     \centering
     \begin{tabular}{|l|p{10cm}|}
         \hline
-        \textbf{Nazwa przypadku} & Przeglądanie  rozkładu linii \\ \hline
-        \textbf{Aktor główny}    & Pasażer                                 \\ \hline
+        \textbf{Nazwa przypadku} & Przeglądanie  rozkładu linii                                  \\ \hline
+        \textbf{Aktor główny}    & Pasażer                                                       \\ \hline
         \textbf{Przebieg główny} &
         1. Użytkownik wprowadza numer linii w wyszukiwarce. \newline
         2. System wyświetla listę kierunków (pętli docelowych) dla tej linii. \newline
@@ -231,23 +231,23 @@ Poniższe tabele szczegółowo opisują przebieg interakcji użytkownika z syste
 \subsection{Scenariusz 7: Obsługa kursu wypadającego z rozkładu (Anulowanie kursu)}
 
 \begin{table}[h]
-\centering
-\begin{tabular}{|l|p{10cm}|}
-\hline
-\textbf{Nazwa przypadku} & Oznaczenie kursu jako anulowanego \\ \hline
-\textbf{Aktor główny} & Dyspozytor \\ \hline
-\textbf{Aktorzy wspierający} & System (Proces automatyczny) \\ \hline
-\textbf{Warunek wstępny} & Kurs jest widoczny w systemie jako aktywny, ale wystąpiły przeszkody w jego realizacji (awaria, brak kontaktu GPS). \\ \hline
-\textbf{Przebieg główny} & 
-1. System generuje alert o braku sygnału GPS z pojazdu przez ponad 5 minut lub o zgłoszonej awarii technicznej. \newline
-2. Dyspozytor odbiera powiadomienie w panelu sterowania. \newline
-3. Dyspozytor weryfikuje status pojazdu (np. poprzez kontakt radiowy). \newline
-4. Dyspozytor wybiera opcję „Anuluj kurs” w systemie dla danej linii i godziny. \newline
-5. System aktualizuje status kursu na „Wypadł z rozkładu”. \newline
-6. Informacja zostaje natychmiast rozesłana do modułów pasażerskich (Tablice Live, Mapa). \\ \hline
-\textbf{Sytuacje wyjątkowe} & 
-4a. Dyspozytor stwierdza, że to tylko błąd GPS – nie anuluje kursu, system nadal wyświetla czas teoretyczny z adnotacją „Brak danych live”. \\ \hline
-\end{tabular}
+    \centering
+    \begin{tabular}{|l|p{10cm}|}
+        \hline
+        \textbf{Nazwa przypadku}     & Oznaczenie kursu jako anulowanego                                                                                   \\ \hline
+        \textbf{Aktor główny}        & Dyspozytor                                                                                                          \\ \hline
+        \textbf{Aktorzy wspierający} & System (Proces automatyczny)                                                                                        \\ \hline
+        \textbf{Warunek wstępny}     & Kurs jest widoczny w systemie jako aktywny, ale wystąpiły przeszkody w jego realizacji (awaria, brak kontaktu GPS). \\ \hline
+        \textbf{Przebieg główny}     &
+        1. System generuje alert o braku sygnału GPS z pojazdu przez ponad 5 minut lub o zgłoszonej awarii technicznej. \newline
+        2. Dyspozytor odbiera powiadomienie w panelu sterowania. \newline
+        3. Dyspozytor weryfikuje status pojazdu (np. poprzez kontakt radiowy). \newline
+        4. Dyspozytor wybiera opcję „Anuluj kurs” w systemie dla danej linii i godziny. \newline
+        5. System aktualizuje status kursu na „Wypadł z rozkładu”. \newline
+        6. Informacja zostaje natychmiast rozesłana do modułów pasażerskich (Tablice Live, Mapa).                                                          \\ \hline
+        \textbf{Sytuacje wyjątkowe}  &
+        4a. Dyspozytor stwierdza, że to tylko błąd GPS – nie anuluje kursu, system nadal wyświetla czas teoretyczny z adnotacją „Brak danych live”.        \\ \hline
+    \end{tabular}
 \end{table}
 
 % --- PUNKT 6: SPECYFIKACJA DFD ---
@@ -305,12 +305,12 @@ Poniższa tabela opisuje strukturę najważniejszych informacji krążących w s
     \centering
     \begin{tabular}{|l|l|p{7cm}|}
         \hline
-        \textbf{Nazwa przepływu} & \textbf{Źródło / Cel}        & \textbf{Zawartość (Atrybuty)}                                              \\ \hline
-        Dane GPS                 & Pojazd $\rightarrow$ P2      & ID pojazdu, długość i szerokość geogr., prędkość, timestamp.               \\ \hline
+        \textbf{Nazwa przepływu} & \textbf{Źródło / Cel}       & \textbf{Zawartość (Atrybuty)}                                              \\ \hline
+        Dane GPS                 & Pojazd $\rightarrow$ P2     & ID pojazdu, długość i szerokość geogr., prędkość, timestamp.               \\ \hline
         Dane Traffic             & System GPS $\rightarrow$ P2 & ID odcinka drogi, współczynnik zakorkowania (0-1), średnia prędkość.       \\ \hline
-        Wynik ETA                & P2 $\rightarrow$ Pasażer          & ID kursu, ID przystanku, przewidywana minuta przyjazdu, status opóźnienia. \\ \hline
-        Zapytanie pasażera       & Pasażer $\rightarrow$ P2     & ID przystanku lub numer linii, koordynaty użytkownika.                     \\ \hline
-        Alert drogowy            & Dyspozytor $\rightarrow$ P5  & Typ zdarzenia, opis tekstowy, ID dotkniętych linii, czas wygaśnięcia.      \\ \hline
+        Wynik ETA                & P2 $\rightarrow$ Pasażer    & ID kursu, ID przystanku, przewidywana minuta przyjazdu, status opóźnienia. \\ \hline
+        Zapytanie pasażera       & Pasażer $\rightarrow$ P2    & ID przystanku lub numer linii, koordynaty użytkownika.                     \\ \hline
+        Alert drogowy            & Dyspozytor $\rightarrow$ P5 & Typ zdarzenia, opis tekstowy, ID dotkniętych linii, czas wygaśnięcia.      \\ \hline
     \end{tabular}
 \end{table}
 
@@ -395,21 +395,21 @@ Systemowy diagram klas przedstawia techniczną strukturę systemu, definiując t
 W diagramie systemowym uwzględniono:
 
 \begin{itemize}
-    \item \textbf{Asocjacje i zależności}:  
+    \item \textbf{Asocjacje i zależności}:
           \begin{itemize}
               \item \texttt{KalkulatorETA} zależy od \texttt{SerwisPostojow} i \texttt{SerwisAdministracyjny} w celu pobrania niezbędnych danych do wyliczeń.
               \item \texttt{SerwisPasazera} korzysta z \texttt{KalkulatorETA} oraz \texttt{Mapa} do obsługi zapytań użytkownika.
               \item \texttt{KlientGPS} dostarcza dane lokalizacyjne dla \texttt{TrackerPojazdow} oraz \texttt{Mapa}.
           \end{itemize}
 
-    \item \textbf{Brak repozytoriów:}  
+    \item \textbf{Brak repozytoriów:}
           Na tym poziomie abstrakcji zdecydowano się nie modelować osobnych klas repozytoriów, gdyż serwisy pełnią funkcję warstwy dostępu do danych.
 \end{itemize}
 
 \subsection{Typy pomocnicze}
 
 \begin{itemize}
-    \item \textbf{Typy pomocnicze:}  
+    \item \textbf{Typy pomocnicze:}
           \begin{itemize}
               \item \texttt{UUID} – unikalny identyfikator obiektów takich jak pojazd, przystanek, postój itp.
               \item \texttt{TimeDelta} – typ reprezentujący odstęp czasu.
@@ -445,11 +445,7 @@ Poniższe makiety przedstawiają kluczowe ekrany aplikacji użytkownika końcowe
 
 \begin{figure}[h]
     \centering
-    % TODO: Wgraj plik o nazwie mockup_main.png
-    % \includegraphics[width=0.45\textwidth]{mockup_main.png}
-    \hfill
-    % TODO: Wgraj plik o nazwie mockup_map.png
-    % \includegraphics[width=0.45\textwidth]{mockup_map.png}
+    \includegraphics[width=0.6\textwidth]{widoki.png}
     \caption{Makiety interfejsu: Tablica odjazdów (lewo) oraz Mapa Live (prawo).}
 \end{figure}
 
@@ -464,7 +460,7 @@ Poniższy diagram (Rysunek \ref{fig:architecture}) przedstawia fizyczny i logicz
 \begin{figure}[h]
     \centering
     % TODO: Wgraj plik o nazwie architektura.png
-    % \includegraphics[width=0.8\textwidth]{architektura.png}
+    \includegraphics[width=0.8\textwidth]{architektura.png}
     \caption{Schemat architektury warstwowej systemu TransTime.}
     \label{fig:architecture}
 \end{figure}
@@ -473,6 +469,6 @@ Poniższy diagram (Rysunek \ref{fig:architecture}) przedstawia fizyczny i logicz
 \begin{itemize}
     \item \textbf{Load Balancer:} Rozdziela ruch między instancje serwera API (zapewnienie wysokiej dostępności).
     \item \textbf{Redis Cache:} Przechowuje najświeższe dane o pozycjach GPS, aby nie obciążać głównej bazy danych przy każdym zapytaniu pasażera.
-    \item \textbf{Worker Services:} Niezależne procesy w tle, które co kilka sekund odpytują API Traffic i aktualizują estymacje czasowe.
+    \item \textbf{Worker Services:} Niezależne procesy w tle, które co kilka sekund odpytują Bazę danych i aktualizują estymacje czasowe.
 \end{itemize}
 \end{document}
