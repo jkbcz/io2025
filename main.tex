@@ -348,11 +348,6 @@ Systemowy diagram klas przedstawia techniczną strukturę systemu, definiując t
 \subsection{Specyfikacja techniczna klas}
 
 \begin{itemize}
-    \item \textbf{TrackerPojazdow}: Klasa odpowiedzialna za śledzenie pojazdów i aktualizację ich pozycji na podstawie danych GPS.
-          \begin{itemize}
-              \item Atrybuty: \texttt{- id: UUID}, \texttt{- szerokośćGeograficzna: double}, \texttt{- długośćGeograficzna: double}, \texttt{- średniaPrędkość: double}
-              \item Metody: \texttt{+ uaktualnijPozycję(): void}, \texttt{+ ETA(przystanek: Przystanek): TimeDelta}
-          \end{itemize}
 
     \item \textbf{KalkulatorETA}: Silnik obliczeniowy czasu przybycia pojazdu na dany przystanek.
           \begin{itemize}
@@ -399,7 +394,7 @@ W diagramie systemowym uwzględniono:
           \begin{itemize}
               \item \texttt{KalkulatorETA} zależy od \texttt{SerwisPostojow} i \texttt{SerwisAdministracyjny} w celu pobrania niezbędnych danych do wyliczeń.
               \item \texttt{SerwisPasazera} korzysta z \texttt{KalkulatorETA} oraz \texttt{Mapa} do obsługi zapytań użytkownika.
-              \item \texttt{KlientGPS} dostarcza dane lokalizacyjne dla \texttt{TrackerPojazdow} oraz \texttt{Mapa}.
+              \item \texttt{KlientGPS} dostarcza dane lokalizacyjne dla \texttt{KalkulatorETA} oraz \texttt{Mapa}.
           \end{itemize}
 
     \item \textbf{Brak repozytoriów:}
