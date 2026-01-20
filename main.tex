@@ -289,6 +289,7 @@ Na tym poziomie system został rozbity na główne procesy funkcjonalne.
     \item \textbf{P3. Wyświetleniu rozkładu:} Wyświetlenie informacji na temat kursów obsługiwanych przez daną linię.
     \item \textbf{P4. Publikacja informacji:} Generowanie widoków dla pasażera (tablica przystankowa, mapa).
     \item \textbf{P5. Obsługa alertów:} Rejestracja komunikatów o zdarzeniach drogowych.
+    \item \textbf{P6. Anulowanie kursu:} Weryfikacja aktualności anulowanego kursu
 \end{enumerate}
 
 \subsection{Magazyny danych (Data Stores)}
@@ -306,11 +307,11 @@ Poniższa tabela opisuje strukturę najważniejszych informacji krążących w s
     \begin{tabular}{|l|l|p{7cm}|}
         \hline
         \textbf{Nazwa przepływu} & \textbf{Źródło / Cel}       & \textbf{Zawartość (Atrybuty)}                                              \\ \hline
-        Dane GPS                 & Pojazd $\rightarrow$ P2     & ID pojazdu, długość i szerokość geogr., prędkość, timestamp.               \\ \hline
+        Dane GPS                 & Pojazd $\rightarrow$ P2     & ID pojazdu, długość i szerokość geogr., średnia prędkość.               \\ \hline
         Dane Traffic             & System GPS $\rightarrow$ P2 & ID odcinka drogi, współczynnik zakorkowania (0-1), średnia prędkość.       \\ \hline
         Wynik ETA                & P2 $\rightarrow$ Pasażer    & ID kursu, ID przystanku, przewidywana minuta przyjazdu, status opóźnienia. \\ \hline
         Zapytanie pasażera       & Pasażer $\rightarrow$ P2    & ID przystanku lub numer linii, koordynaty użytkownika.                     \\ \hline
-        Alert drogowy            & Dyspozytor $\rightarrow$ P5 & Typ zdarzenia, opis tekstowy, ID dotkniętych linii, czas wygaśnięcia.      \\ \hline
+        Alert drogowy            & Dyspozytor $\rightarrow$ P5 & Typ zdarzenia, opis tekstowy, dotknięty odcinek drogi, czas wygaśnięcia.      \\ \hline
     \end{tabular}
 \end{table}
 
@@ -329,7 +330,7 @@ Najniższy poziom dekompozycji (procesy atomowe) realizuje następującą logik�
     \item \textbf{P2.1 (Pobranie danych trasy):} Przekazuje miejsce docelowe oraz godzinę przyjazdu oczekiwaną przez pasażera do kolejnego procesu.
     \item \textbf{P2.2 (Szukanie najbliższych linii):} Pobiera rozkłady, które obejmują kursy z przystankami znajdującymi się w bliskiej odległości do miejsca docelowego oraz odjazdu.
     \item \textbf{P2.3 (Weryfikacja aktualności trasy):} Na bazie odnalezionych kursów i komunikatów o utrudnieniach przesiewa nieaktualne kursy.
-    \item \textbf{P2.4 (Obliczanie daty przyjazdu):} Na podstawie GPS pojazdu i współrzędnych przystanku przewiduje pozostały czas do miejsca docelowego.
+    \item \textbf{P2.4 (Obliczanie daty przyjazdu):} Na podstawie GPS pojazdu, średnich prędkości i współrzędnych przystanku przewiduje pozostały czas do miejsca docelowego.
 \end{itemize}
 
 % --- PUNKT 7: SYSTEMOWY DIAGRAM KLAS ---
@@ -356,9 +357,9 @@ Systemowy diagram klas przedstawia techniczną strukturę systemu, definiując t
               \item Opis: Metoda wykorzystuje zewnętrzne serwisy, takie jak \texttt{SerwisPostojow} (dane o rozkładach i postojach) oraz \texttt{SerwisAdministracyjny} (utrudnienia), aby precyzyjnie obliczyć przewidywany czas przybycia.
           \end{itemize}
 
-    \item \textbf{SerwisPostojow}: Fasada odpowiedzialna za zarządzanie danymi o postojach pojazdów i ich rozkładach.
+    \item \textbf{SerwisPostojow}: Serwis odpowiedzialny za zarządzanie danymi o postojach pojazdów i ich rozkładach.
           \begin{itemize}
-              \item Metody: \texttt{+ pobierzPostoj(idPostoju: UUID): Postoj}, \texttt{+ uaktualnijPostoj(idPostoju: UUID, postoj: Postoj): void}, \texttt{+ usunPostoj(idPostoju: UUID): void}, \texttt{+ dystans(przystanek: Przystanek): double}
+              \item Metody: \texttt{+ pobierzPostoj(idPostoju: UUID): Postoj}, \texttt{+ uaktualnijPostoj(idPostoju: UUID, postoj: Postoj): void}, \texttt{+ usunPostoj(idPostoju: UUID): void}, \texttt{+ dystans(lokacja: (double, double), przystanek: Przystanek): double}
               \item Opis: Zarządza danymi o postojach i pozwala na wyliczanie odległości do przystanku.
           \end{itemize}
 
@@ -370,12 +371,12 @@ Systemowy diagram klas przedstawia techniczną strukturę systemu, definiując t
 
     \item \textbf{SerwisPasazera}: Udostępnia funkcjonalności dla pasażera, takie jak pobieranie map, rozkładów i obliczanie ETA.
           \begin{itemize}
-              \item Metody: \texttt{+ obliczETA(przystanek: Przystanek): TimeDelta}, \texttt{+ pobierzMape(): Mapa}, \texttt{+ pobierzRozkład(idLinii: UUID): List<Postoj>}
+              \item Metody: \texttt{+ obliczETA(przystanek: Przystanek): timedelta}, \texttt{+ pobierzMape(): Mapa}, \texttt{+ pobierzRozkład(idLinii: UUID): List<Postoj>}
           \end{itemize}
 
     \item \textbf{Mapa}: Klasa reprezentująca mapę z lokalizacjami pasażerów, pojazdów oraz postojów.
           \begin{itemize}
-              \item Atrybuty: \texttt{- lokalizacjaPasazera: (double, double)}, \texttt{- lokalizacjePojazdow: Map<UUID, (double, double)>}, \texttt{- postoje: Map<UUID, List<Postoj>>}
+              \item Atrybuty: \texttt{- lokalizacjaPasazera: (double, double)}, \texttt{- lokalizacjePojazdow: Map<UUID, (double, double)>}, \texttt{- postoje: Map<idLinii, List<Postoj>>}
               \item Metody: \texttt{+ wyswietl(): void}
           \end{itemize}
 
@@ -407,7 +408,7 @@ W diagramie systemowym uwzględniono:
     \item \textbf{Typy pomocnicze:}
           \begin{itemize}
               \item \texttt{UUID} – unikalny identyfikator obiektów takich jak pojazd, przystanek, postój itp.
-              \item \texttt{TimeDelta} – typ reprezentujący odstęp czasu.
+              \item \texttt{timedelta} – typ reprezentujący odstęp czasu.
               \item \texttt{Mapa} – obiekt przechowujący aktualne lokalizacje i umożliwiający wizualizację.
           \end{itemize}
 \end{itemize}
